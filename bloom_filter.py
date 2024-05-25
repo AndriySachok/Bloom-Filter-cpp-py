@@ -22,7 +22,13 @@ class BloomFilter(object):
     def fnv1_64(self, s, funcIndex):
         hash_value = offset_basis_64
         for char in s + str(funcIndex):
-            hash_value = (hash_value * FNV_prime_64) ^ ord(char)
+            hash_value = (
+                hash_value * FNV_prime_64
+            ) & 0xFFFFFFFFFFFFFFFF  # Constrain to 64 bits
+
+            hash_value = hash_value ^ ord(char)
+            hash_value = hash_value & 0xFFFFFFFFFFFFFFFF  # Constrain to 64 bits
+
         return hash_value
 
     def add_to_filter(self, item):
@@ -38,17 +44,17 @@ class BloomFilter(object):
         return False
 
 
-start_time = time.time() * 1000
-
-available_size = 10000
-actual_fill_size = 10000
+available_size = 1000
+actual_fill_size = 1000
 bloom_filter = BloomFilter(available_size, actual_fill_size)
 base_ip = "192.168.0."
-bloom_filter.add_to_filter(base_ip + str(1))
-bloom_filter.add_to_filter(base_ip + str(2))
-bloom_filter.add_to_filter(base_ip + str(3))
+start_time = time.time() * 1000
 
-for i in range(1, actual_fill_size):
+for i in range(0, actual_fill_size):
+    bloom_filter.add_to_filter(base_ip + str(i))
+
+
+for i in range(0, available_size):
     if bloom_filter.check_is_not_in_filter(base_ip + str(i)):
         print("not in filter " + base_ip + str(i))
     else:

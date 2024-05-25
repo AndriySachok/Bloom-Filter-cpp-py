@@ -27,8 +27,8 @@ public:
     }
   }
 
-  bool check_is_not_in_filter(std::string);
-  void add(std::string);
+  bool check_is_not_in_filter(const std::string &item) const;
+  void add(const std::string &item);
 };
 
 #endif
